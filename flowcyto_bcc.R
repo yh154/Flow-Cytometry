@@ -3,15 +3,15 @@
 'Flowcyto Batch Correction and Clustering.
 
 Usage:
-  flowcyto_bcc.R csv [events output thread].
+  flowcyto_bcc.R --csv=<csv> --events=<bp> --output=<output> -t=<t>.
   flowcyto_bcc.R (-h | --help)
 
 Options:
   -h --help     Show this screen.
-  --csv  sample.csv contains columns: full_path, batch, full_path and et al.
-  --events      Total events selected for batch correction. events/no-of-batch selected for each batch.
-  --output    Output file. [default: ""].
-  -t --thread   threads. [default: 1].
+  --csv=<csv>  sample.csv contains columns: full_path, batch, full_path and et al.
+  --events=<bp>    Total events selected for batch correction. events/no-of-batch selected for each batch.[default: 1e5]
+  --output=<output>    Output file. [default: ""].
+  -t --thread=<t>   threads. [default: 1].
 
 ' -> doc
 
@@ -109,4 +109,5 @@ sce_down<- NewClustering(
 )
 saveRDS(sce_down, paste0(output,"sce_down_",events,".rds"))
 saveRDS(sce, paste0(output,"sce_",events,".rds"))
+
 
