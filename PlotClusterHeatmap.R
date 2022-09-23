@@ -1,4 +1,4 @@
-NewPlotClusterHeatmap = function (sce, features = rownames(sce), clusters = sce$cluster_id, 
+PlotClusterHeatmap = function (sce, features = rownames(sce), clusters = sce$cluster_id, 
     by_exprs_values = "exprs", fun = "median", scale = T, cluster_rows = T, 
     cluster_anno = F, draw_dend = T, draw_freqs = T, split_by = NULL, hm2 = NULL) 
 {   require("ComplexHeatmap")
