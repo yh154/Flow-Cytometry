@@ -1,4 +1,4 @@
-NewClustering=function (sce, features = rownames(sce), by_exprs_values = "normexprs", 
+Clustering=function (sce, features = rownames(sce), by_exprs_values = "normexprs", 
     method = "SNNGraph", xdim = 20, ydim = 20, maxK = 40, save_graph=FALSE, output="",
     n_components = min(c(2,length(features))), n_neighbors = 10, min_dist = 0.1, resolution=1, seed = 12345) 
 {
