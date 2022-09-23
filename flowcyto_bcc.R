@@ -3,57 +3,69 @@
 'Flowcyto Batch Correction and Clustering.
 
 Usage:
-  flowcyto_bcc.R --csv=<csv> --events=<bp> --output=<output> -t=<t>.
-  flowcyto_bcc.R (-h | --help)
+    flowcyto_bcc.R [--events output --thread] (--save_graph) <csv> <output>
 
 Options:
-  -h --help     Show this screen.
-  --csv=<csv>  sample.csv contains columns: full_path, batch, full_path and et al.
-  --events=<bp>    Total events selected for batch correction. events/no-of-batch selected for each batch.[default: 1e5]
-  --output=<output>    Output file. [default: ""].
-  -t --thread=<t>   threads. [default: 1].
+    -h --help            Show this screen.
+    --events=<bp>        Total events selected for batch correction.events/no-of-batch selected for each batch [default: 1e5].
+    -t --thread=<t>      Threads [default: 1].
+    --save_graph         Save SNN graph.
+
+Arguments:
+    csv Sample meta table with at least column: full_name, batch, full_path, ...
+    output Output directory. Default current working directory.
 
 ' -> doc
 
 library(docopt)
 opts <- docopt(doc)
+print(opts)
 
-csv=read.csv(opts$csv)
-events= as.integer(opts$events)
-output=opts$output
-thread=opts$thread
-if (!file.exists(csv)) {
-  stop("csv does not exist: ", csv)
+if (!file.exists(opts$csv)) {
+  stop(sprintf("%s does not exist.", opts$csv))
 }
 
-rds <- paste0(output, "/sce_",maxN,"".rds")
-rds_down <- paste0(output, "/sce_down_",maxN,".rds")
+csv=opts$csv
+events= as.integer(opts$events)
+output=opts$output
+if(is.null(output)){output=getwd()}
+message(sprintf("Output file location:\n  %s\n",output))
+thread=as.integer(opts$thread)
+
+rds <- paste0(output, "/sce_", events, ".rds")
+rds_down <- paste0(output, "/sce_down_",events,".rds")
 if (file.exists(rds) | file.exists(rds_down)) {
   stop("sce object already exists.")
 }
 
 suppressPackageStartupMessages({
 library(cowplot)
-library(tidyr)
+library(dplyr)
 library(flowCore)
 library(CATALYST)
-library(iMUBAC)
+library(ggplot2)
 library(data.table)
 })
+source("/Users/yuanhao/Analysis/Krogsgaard/Ryan_Sep22_Cytek/script/NewBatchCorrection.R")
+source("/Users/yuanhao/Analysis/Krogsgaard/Ryan_Sep22_Cytek/script/NewRunUMAP.R")
+source("/Users/yuanhao/Analysis/Krogsgaard/Ryan_Sep22_Cytek/script/NewClustering.R")
 
 md=read.csv(csv) %>% data.table::setDT()
 fs=read.flowSet(md[["full_path"]])
 fsApply(fs,function(x){exprs(x) %>% range()})
-CATALYST::guessPanel(fs[[1]]) 
+CATALYST::guessPanel(fs[[1]])
 message("\nCreate SCE ...")
-sce=CATALYST::prepData(fs,md=md,
+
+sce=CATALYST::prepData(
+    fs,
+    md=md,
     transform=FALSE,
     FACS = TRUE,
     md_cols = list(
         file = "file_name", id = "file_name",
-        factors = c("batch", "treatment","outcome","disease")),
+        factors = c("batch")),
     panel_cols = list(channel = "fcs_colname",
-        antigen = "fcs_colname")
+        antigen = "antigen")
 )
 
 ## logicle-transform
@@ -85,15 +97,17 @@ sce_down <-NewRunUMAP(
   scale=T,
   n_threads=thread)
 message("\nPlotting ...")
-p1=iMUBAC::plotDR(sce_down, dimred = "UMAP", colour_by = "batch",
+p1=scater::plotReducedDim(sce_down, dimred = "UMAP", colour_by = "batch",
                   point_size = 0.1, point_alpha = 0.2)+
   ggtitle("Before Batch Correction")+
   theme(plot.title = element_text(hjust = 0.5))
-p2=iMUBAC::plotDR(sce_down, dimred = "UMAPnorm", colour_by = "batch",
+p2=scater::plotReducedDim(sce_down, dimred = "UMAPnorm", colour_by = "batch",
                   point_size = 0.1, point_alpha = 0.2) +
   ggtitle("After Batch Correction")+
   theme(plot.title = element_text(hjust = 0.5))
-png(paste0(output,"UMAP_",events,".png",maxN),height = 400,width = 800)
+
+message(paste0(output,"/UMAP_",events,".png"))
+png(paste0(output,"/UMAP_",events,".png"),height = 400,width = 800)
 cowplot::plot_grid(plotlist = list(p1,p2), ncol = 2)
 dev.off()
 
@@ -104,10 +118,8 @@ sce_down<- NewClustering(
     method="SNNGraph",
     n_components=2,
     n_neighbors=30,
-    save_graph=TRUE,
-    resolution=c(0.6,1,1.4,1.6)
+    save_graph=opts$save_graph,
+    resolution=c(1,1.6)
 )
-saveRDS(sce_down, paste0(output,"sce_down_",events,".rds"))
-saveRDS(sce, paste0(output,"sce_",events,".rds"))
-
-
+saveRDS(sce_down, paste0(output,"/sce_down_",events,".rds"))
+saveRDS(sce, paste0(output,"/sce_",events,".rds"))
