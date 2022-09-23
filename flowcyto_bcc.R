@@ -56,6 +56,8 @@ fsApply(fs,function(x){exprs(x) %>% range()})
 CATALYST::guessPanel(fs[[1]])
 message("\nCreate SCE ...")
 
+## Create SingleCellExperiment object.
+## md_cols and panel_cols may need edit accordingly
 sce=CATALYST::prepData(
     fs,
     md=md,
@@ -63,7 +65,7 @@ sce=CATALYST::prepData(
     FACS = TRUE,
     md_cols = list(
         file = "file_name", id = "file_name",
-        factors = c("batch")),
+        factors = c("batch")), 
     panel_cols = list(channel = "fcs_colname",
         antigen = "antigen")
 )
@@ -77,6 +79,7 @@ ex <- fsApply(fsApply(fs, function(ff){
 assay(sce, "exprs", FALSE) <- t(ex)
 
 sce_down=NewBatchCorrection(sce, events=100000)
+
 ##UMAP
 message("\nRun UMAP ...")
 sce_down <-NewRunUMAP(
@@ -96,6 +99,7 @@ sce_down <-NewRunUMAP(
   min_dist=0.3,
   scale=T,
   n_threads=thread)
+
 message("\nPlotting ...")
 p1=scater::plotReducedDim(sce_down, dimred = "UMAP", colour_by = "batch",
                   point_size = 0.1, point_alpha = 0.2)+
