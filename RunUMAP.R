@@ -1,4 +1,4 @@
-NewRunUMAP = function (sce, 
+RunUMAP = function (sce, 
                        by_exprs_values = "exprs", 
                        name = "UMAP", n_components = 2, 
                        n_neighbors = 100, min_dist = 0.5, 
