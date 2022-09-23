@@ -1,4 +1,4 @@
-NewBatchCorrection = function (sce, events = 1e+05, seed = 12345,batch="batch"){
+BatchCorrection = function (sce, events = 1e+05, seed = 12345,batch="batch"){
   set.seed(seed)
   batches=table(sce[[batch]])
   slice_batch=events/length(batches)
