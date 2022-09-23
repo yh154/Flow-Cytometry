@@ -2,14 +2,16 @@
 require('flowCore')
 require('Biobase')
 require('data.table')
-CSV_Directory="/path/to/csv/"
-FileNames <- list.files(path=CSV_Directory, pattern = ".csv")     
+csv_dir="/path/to/csv/"
+FileNames <- list.files(path=csv_dir, pattern = ".csv")     
 as.matrix(FileNames) 
 
 out_dir="/output/dir/"
 
+# markers of interests. 
 markers=read.table("markers_order.txt",sep="\t",header=F)$V1
 
+# keep valid columns: 8-41
 DataList=list() 
 for (File in FileNames) { 
   tempdata <- data.table::fread(paste0(PrimaryDirectory,File), check.names = FALSE, skip = 341)[,8:41]
