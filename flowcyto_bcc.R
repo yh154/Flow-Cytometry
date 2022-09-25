@@ -78,11 +78,11 @@ ex <- fsApply(fsApply(fs, function(ff){
 
 assay(sce, "exprs", FALSE) <- t(ex)
 
-sce_down=NewBatchCorrection(sce, events=100000)
+sce_down=BatchCorrection(sce, events=100000)
 
 ##UMAP
 message("\nRun UMAP ...")
-sce_down <-NewRunUMAP(
+sce_down <-RunUMAP(
   sce_down,
   by_exprs_values="normexprs",
   name="UMAPnorm",
@@ -91,7 +91,7 @@ sce_down <-NewRunUMAP(
   scale=F,
   metric = 'cosine',
   n_threads=thread)
-sce_down <-NewRunUMAP(
+sce_down <-RunUMAP(
   sce_down,
   by_exprs_values="exprs",
   name="UMAP",
@@ -117,7 +117,7 @@ dev.off()
 
 ##clustering
 message("\nClustering ...")
-sce_down<- NewClustering(
+sce_down<- Clustering(
     sce_down,
     method="SNNGraph",
     n_components=2,
