@@ -1,4 +1,4 @@
-newClusterPropagation=function (sce, sce_down, by_exprs_values = "normexprs", maxN = 100, 
+ClusterPropagation=function (sce, sce_down, by_exprs_values = "normexprs", maxN = 100, 
     numThreads = 4, seed = 12345) 
 {
     clusterPropagation_SingleBatch <- function(sce, sce_down) {
