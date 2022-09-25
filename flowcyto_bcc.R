@@ -78,7 +78,7 @@ ex <- fsApply(fsApply(fs, function(ff){
 
 assay(sce, "exprs", FALSE) <- t(ex)
 
-sce_down=BatchCorrection(sce, events=100000)
+sce_down=BatchCorrection(sce, events=events)
 
 ##UMAP
 message("\nRun UMAP ...")
