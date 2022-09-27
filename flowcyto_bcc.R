@@ -122,5 +122,13 @@ sce_down<- Clustering(
     save_graph=opts$save_graph,
     resolution=c(1,1.6)
 )
+
+#scater::plotReducedDim(sce_down, dimred = "UMAPnorm", 
+#                       colour_by = "cluster_id_res_1",
+#                       text_by = "cluster_id_res_1",
+#                       point_size = 0.1, point_alpha = 0.5) +
+#  ggtitle("After Batch Correction")+
+#  theme(plot.title = element_text(hjust = 0.5))
+
 saveRDS(sce_down, paste0(output,"/sce_down_",events,".rds"))
 saveRDS(sce, paste0(output,"/sce_",events,".rds"))
