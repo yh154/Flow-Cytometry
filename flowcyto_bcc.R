@@ -84,16 +84,16 @@ sce_down <-RunUMAP(
   sce_down,
   by_exprs_values="normexprs",
   name="UMAPnorm",
-  n_neighbors=30,
-  min_dist=0.3,
+  n_neighbors=25,
+  min_dist=0.4,
   scale=F,
   n_threads=thread)
 sce_down <-RunUMAP(
   sce_down,
   by_exprs_values="exprs",
   name="UMAP",
-  n_neighbors=30,
-  min_dist=0.3,
+  n_neighbors=25,
+  min_dist=0.4,
   scale=T,
   n_threads=thread)
 
