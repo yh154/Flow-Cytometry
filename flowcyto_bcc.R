@@ -87,7 +87,6 @@ sce_down <-RunUMAP(
   n_neighbors=30,
   min_dist=0.3,
   scale=F,
-  metric = 'cosine',
   n_threads=thread)
 sce_down <-RunUMAP(
   sce_down,
