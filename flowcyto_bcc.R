@@ -39,12 +39,14 @@ if (file.exists(rds) | file.exists(rds_down)) {
 }
 
 suppressPackageStartupMessages({
-library(cowplot)
-library(dplyr)
-library(flowCore)
-library(CATALYST)
-library(ggplot2)
-library(data.table)
+require(cowplot)
+require(dplyr)
+require(flowCore)
+require(CATALYST)
+require(ggplot2)
+require(data.table)
+require(caret)
+require(doParallel)
 })
 source("utilities.R")
 
