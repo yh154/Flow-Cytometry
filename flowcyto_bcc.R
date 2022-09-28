@@ -132,3 +132,14 @@ sce_down<- Clustering(
 
 saveRDS(sce_down, paste0(output,"/sce_down_",events,".rds"))
 saveRDS(sce, paste0(output,"/sce_",events,".rds"))
+
+## Cluster propagation
+system.time(sce <- ClusterPropagation(
+  sce,           
+  sce_down,     
+  by_exprs_values="exprs", 
+  maxN=100,
+  seed=12345,
+  cluster_id = 'cluster_id_res_1'
+))
+
