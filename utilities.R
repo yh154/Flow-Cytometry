@@ -89,6 +89,13 @@ Clustering=function (sce, features = rownames(sce), by_exprs_values = "normexprs
     return(sce)
 }
 
+DownSampleSCE = function(sce,maxN,group_by){
+  sce$event_id=1:ncol(sce)
+  dt <- colData(sce) %>% as.data.frame() %>% data.table::as.data.table()
+  dt <- dt[, .SD[sample(.N, min(maxN,.N))], by = group_by]
+  sce <- sce[, sce$event_id %in% dt$event_id]
+}
+
 PlotClusterHeatmap = function (sce, features = rownames(sce), clusters = sce$cluster_id, 
     by_exprs_values = "exprs", fun = "median", scale = T, cluster_rows = T, 
     cluster_anno = F, draw_dend = T, draw_freqs = T, split_by = NULL, hm2 = NULL) 
