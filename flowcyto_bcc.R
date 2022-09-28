@@ -127,7 +127,7 @@ sce_down<- Clustering(
 
 
 saveRDS(sce_down, paste0(output,"/sce_down_",events,".rds"))
-saveRDS(sce, paste0(output,"/sce_",events,".rds"))
+#saveRDS(sce, paste0(output,"/sce_",events,".rds"))
 
 #scater::plotReducedDim(sce_down, dimred = "UMAPnorm", 
 #                       colour_by = "cluster_id_res_1",
@@ -146,4 +146,5 @@ system.time(sce <- ClusterPropagation(
   seed=12345,
   cluster_id = 'cluster_id_res_1'
 ))
-saveRDS(sce, paste0(output,"/sce_",events,"_final.rds"))
+#saveRDS(sce, paste0(output,"/sce_",events,"_final.rds"))
+saveRDS(sce, paste0(output,"/sce_",events,".rds"))
