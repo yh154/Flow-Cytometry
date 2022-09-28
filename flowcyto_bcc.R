@@ -3,13 +3,13 @@
 'Flowcyto Batch Correction and Clustering.
 
 Usage:
-    flowcyto_bcc.R [--events output --thread] (--save_graph) <csv> <output>
-
+    flowcyto_bcc.R [options] <csv> [<output>]
 Options:
     -h --help            Show this screen.
     --events=<bp>        Total events selected for batch correction.events/no-of-batch selected for each batch [default: 1e5].
     -t --thread=<t>      Threads [default: 1].
     --save_graph         Save SNN graph.
+    --group=<gp>         Group(s) of interests [default: batch]. 
 
 Arguments:
     csv Sample meta table with at least column: full_name, batch, full_path, ...
