@@ -1,2 +1,5 @@
 # Flow-Cytometry
-flowcyto_bcc.R for Cytek data batch correction and clustering
+Scripts for Cytek data batch correction and clustering
+``` r
+Rscript flowcyto_bcc.R -h
+```
