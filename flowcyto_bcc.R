@@ -11,6 +11,7 @@ Options:
     -t --thread=<t>      Threads [default: 1].
     --group=<gp>         Group(s) of interest to consider [default: batch]. Comma delimited. 
     --save_graph         Save SNN graph.
+    --transfer           Perform asinh transfermation.        
 
 Arguments:
     csv Sample meta table with at least column: full_name, batch, full_path, ...
@@ -30,10 +31,10 @@ csv=opts$csv
 events= as.integer(opts$events)
 output=opts$output
 gp=as.character(unlist(strsplit(gsub("\\s+","",opts$group),",")))
-
 if(is.null(output)){output=getwd()}
 message(sprintf("Output file location:\n  %s\n",output))
 thread=as.integer(opts$thread)
+trans=opts$transfer
 
 rds <- paste0(output, "/sce_", events, ".rds")
 rds_down <- paste0(output, "/sce_down_",events,".rds")
@@ -65,7 +66,7 @@ message("\nCreate SCE ...")
 sce=CATALYST::prepData(
     fs,
     md=md,
-    transform=FALSE,
+    transform=trans,
     FACS = TRUE,
     md_cols = list(
         file = "file_name", id = "file_name",
@@ -75,10 +76,10 @@ sce=CATALYST::prepData(
 )
 
 ## logicle-transform
-ex <- fsApply(fsApply(fs, function(ff){
-    lgcl <- estimateLogicle(ff, channels = colnames(ff))
-    flowCore::transform(ff, lgcl)
-}),exprs)
+#ex <- fsApply(fsApply(fs, function(ff){
+#    lgcl <- estimateLogicle(ff, channels = colnames(ff))
+#    flowCore::transform(ff, lgcl)
+#}),exprs)
 
 assay(sce, "exprs", FALSE) <- t(ex)
 
