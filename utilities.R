@@ -101,6 +101,70 @@ DownSampleSCE = function(sce,
   return(sce)
 }
 
+ClusterPropagation <- function(
+    sce,
+    sce_down,
+    by_exprs_values="exprs",
+    maxN=100,
+    cluster_id="cluster_id",
+    seed=12345
+){
+  require(caret)
+  require(doParallel)
+  batches=levels(sce$"batch")
+  registerDoParallel()
+  # The main function
+  clusterPropagation_SingleBatch <- function(sce, sce_down, cluster_id, by_exprs_values,maxN,seed){
+    
+    set.seed(seed)
+    sce_down <- DownSampleSCE(sce_down,maxN=maxN,group_by=cluster_id,seed=seed)
+    
+    ## Train a classifier
+    cat("-Training a classifier...\n", sep="")
+    trCtrls <- caret::trainControl(
+      method="repeatedcv",
+      number=10,
+      repeats=5,
+      sampling="up",
+      verboseIter=F
+    )
+    mat <- t(assay(sce_down, by_exprs_values))
+    tunegrid <- expand.grid(.mtry=5:15)
+    #tunegrid <- expand.grid(.mtry=5:15, .numRandomCuts=1:2) ## for extraTrees
+    caret.model <- caret::train(
+      x=mat,
+      y=droplevels(sce_down[[cluster_id]]),
+      preProcess=c("center","scale"),
+      method="rf",
+      metric="Kappa",
+      tuneGrid=tunegrid,
+      trControl=trCtrls
+    )
+    ## Predict cell types
+    cat("-Predicting clusters...\n", sep="")
+    mat <- t(assay(sce, by_exprs_values))
+    clusterIDs <- predict(caret.model, newdata=mat)
+    clusterIDs <- as.numeric(as.character(clusterIDs)) ### remove factor levels
+    return(clusterIDs)
+  }
+  
+    clusterIDs=foreach(i=seq_along(batches)) %dopar% {
+      clusterPropagation_SingleBatch(sce[,sce$batch==batches[i]],
+                                     sce_down[,sce_down$batch==batches[i]],
+                                     cluster_id = cluster_id,
+                                     seed=seed,
+                                     by_exprs_values = by_exprs_values,
+                                     maxN = maxN)
+      
+    }
+
+ sce$"predict_cluster_id" <- 0
+ for(i in seq_along(batches)){
+   sce[,sce$batch==batches[i]]$predict_cluster_id = clusterIDs[[i]]
+ }
+  return(sce) 
+}
+
 PlotClusterHeatmap = function (sce, features = rownames(sce), clusters = sce$cluster_id, 
     by_exprs_values = "exprs", fun = "median", scale = T, cluster_rows = T, 
     cluster_anno = F, draw_dend = T, draw_freqs = T, split_by = NULL, hm2 = NULL) 
