@@ -3,7 +3,7 @@
 'Flowcyto Batch Correction and Clustering.
 
 Usage:
-    flowcyto_bcc.R [options] <csv> [<output>]
+    flowcyto_bcc.R [options] (<csv>) [<output>]
 Options:
     -h --help            Show this screen.
     --events=<bp>        Total events selected for batch correction.events/no-of-batch selected for each batch [default: 1e5].
