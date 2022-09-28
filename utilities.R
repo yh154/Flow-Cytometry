@@ -162,7 +162,8 @@ ClusterPropagation <- function(
  for(i in seq_along(batches)){
    sce[,sce$batch==batches[i]]$predict_cluster_id = clusterIDs[[i]]
  }
-  return(sce) 
+ sce$predict_cluster_id=factor(sce$predict_cluster_id)
+ return(sce) 
 }
 
 PlotClusterHeatmap = function (sce, features = rownames(sce), clusters = sce$cluster_id, 
