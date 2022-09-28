@@ -130,9 +130,6 @@ sce_down<- Clustering(
 #  ggtitle("After Batch Correction")+
 #  theme(plot.title = element_text(hjust = 0.5))
 
-saveRDS(sce_down, paste0(output,"/sce_down_",events,".rds"))
-saveRDS(sce, paste0(output,"/sce_",events,".rds"))
-
 ## Cluster propagation
 system.time(sce <- ClusterPropagation(
   sce,           
@@ -143,3 +140,5 @@ system.time(sce <- ClusterPropagation(
   cluster_id = 'cluster_id_res_1'
 ))
 
+saveRDS(sce_down, paste0(output,"/sce_down_",events,".rds"))
+saveRDS(sce, paste0(output,"/sce_",events,".rds"))
