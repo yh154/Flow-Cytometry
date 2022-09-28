@@ -89,7 +89,11 @@ Clustering=function (sce, features = rownames(sce), by_exprs_values = "normexprs
     return(sce)
 }
 
-DownSampleSCE = function(sce,maxN,group_by){
+DownSampleSCE = function(sce,
+			 maxN,
+			 group_by,
+			 seed){
+  set.seed(seed)
   sce$event_id=1:ncol(sce)
   dt <- colData(sce) %>% as.data.frame() %>% data.table::as.data.table()
   dt <- dt[, .SD[sample(.N, min(maxN,.N))], by = group_by]
