@@ -38,8 +38,13 @@ thread=as.integer(opts$thread)
 trans=opts$transfer
 cofactor=opts$cofactor
 
-rds <- paste0(output, "/sce_", events, ".rds")
-rds_down <- paste0(output, "/sce_down_",events,".rds")
+if(trans){
+    rds <- paste0(output, "/sce_", events, "_CF",cofactor,".rds")
+    rds_down <- paste0(output, "/sce_down_",events,"_CF",cofactor,".rds")
+ }else{
+    rds <- paste0(output, "/sce_", events, ".rds")
+    rds_down <- paste0(output, "/sce_down_",events,".rds")
+}
 if (file.exists(rds) | file.exists(rds_down)) {
   stop("sce object already exists.")
 }
