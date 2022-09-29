@@ -84,7 +84,7 @@ sce=CATALYST::prepData(
 #    flowCore::transform(ff, lgcl)
 #}),exprs)
 
-assay(sce, "exprs", FALSE) <- t(ex)
+if(!trans) assay(sce, "exprs", FALSE) <- assay(sce,"counts")
 
 sce_down=BatchCorrection(sce, events=events)
 
