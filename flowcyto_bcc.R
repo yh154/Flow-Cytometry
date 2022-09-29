@@ -36,6 +36,7 @@ if(is.null(output)){output=getwd()}
 message(sprintf("Output file location:\n  %s\n",output))
 thread=as.integer(opts$thread)
 trans=opts$transfer
+cofactor=opts$cofactor
 
 rds <- paste0(output, "/sce_", events, ".rds")
 rds_down <- paste0(output, "/sce_down_",events,".rds")
@@ -68,6 +69,7 @@ sce=CATALYST::prepData(
     fs,
     md=md,
     transform=trans,
+    cofactor=cofactor,
     FACS = TRUE,
     md_cols = list(
         file = "file_name", id = "file_name",
