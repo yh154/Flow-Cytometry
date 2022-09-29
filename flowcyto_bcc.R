@@ -11,7 +11,8 @@ Options:
     -t --thread=<t>      Threads [default: 1].
     --group=<gp>         Group(s) of interest to consider [default: batch]. Comma delimited. 
     --save_graph         Save SNN graph.
-    --transfer           Perform asinh transfermation.        
+    --transfer           Perform arcsinh transfermation.
+    --cofactor=<cf>      Transfermation cofactor [default: 5]
 
 Arguments:
     csv Sample meta table with at least column: full_name, batch, full_path, ...
