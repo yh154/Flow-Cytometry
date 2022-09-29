@@ -36,7 +36,7 @@ if(is.null(output)){output=getwd()}
 message(sprintf("Output file location:\n  %s\n",output))
 thread=as.integer(opts$thread)
 trans=opts$transfer
-cofactor=opts$cofactor
+cofactor=as.integer(opts$cofactor)
 
 if(trans){
     rds <- paste0(output, "/sce_", events, "_CF",cofactor,".rds")
