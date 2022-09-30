@@ -11,7 +11,6 @@ out_dir="/output/dir/"
 # markers of interests. 
 markers=read.table("markers_order.txt",sep="\t",header=F)$V1
 
-# keep valid columns: 8-41
 DataList=list() 
 for (File in FileNames) { 
   tempdata <- data.table::fread(paste0(PrimaryDirectory,File), check.names = FALSE, skip = 341)
