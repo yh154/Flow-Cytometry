@@ -168,7 +168,7 @@ ClusterPropagation <- function(
 
 PlotClusterHeatmap = function (sce, features = rownames(sce), clusters = sce$cluster_id, 
     by_exprs_values = "exprs", fun = "median", scale = T, cluster_rows = T, 
-    cluster_anno = F, draw_dend = T, draw_freqs = T, split_by = NULL, hm2 = NULL) 
+    cluster_anno = F, draw_dend = T, draw_freqs = T, split_by = NULL, hm2 = NULL,title='') 
 {   require("ComplexHeatmap")
     u <- c("abundances", features)
     if (!is.null(hm2)) 
@@ -195,7 +195,7 @@ PlotClusterHeatmap = function (sce, features = rownames(sce), clusters = sce$clu
             cols <- iMUBAC:::myCols[seq_len(nk)]
         }
         cols <- setNames(cols, anno)
-        cluster_anno <- ComplexHeatmap::Heatmap(matrix = anno, col = cols, name = "cluster_id", 
+        cluster_anno <- ComplexHeatmap::Heatmap(matrix = anno, col = cols, name = title, 
             rect_gp = grid::gpar(col = "white"), width = unit(0.4, 
                 "cm"), cluster_rows = row_clustering, cluster_columns = T, 
             show_row_dend = draw_dend, row_dend_reorder = F)
@@ -227,7 +227,7 @@ PlotClusterHeatmap = function (sce, features = rownames(sce), clusters = sce$clu
                 by = "cluster_id", fun = fun))
         }
         hm1 <- ComplexHeatmap::Heatmap(matrix = hm1_es[, features], col = hm_cols, 
-            name = "expression", column_names_gp = grid::gpar(fontsize = 8), 
+            name = ifelse(fun=="mean", "avg.exp","median.exp"), column_names_gp = grid::gpar(fontsize = 8), 
             rect_gp = grid::gpar(col = "white"), na_col = "lightgrey", 
             cluster_rows = row_clustering, cluster_columns = TRUE, 
             show_row_dend = draw_dend, column_title = names(groups)[i][many])
