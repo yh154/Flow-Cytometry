@@ -13,6 +13,8 @@ Options:
     --save_graph         Save SNN graph.
     --transfer           Perform arcsinh transfermation.
     --cofactor=<cf>      Transfermation cofactor [default: 5]
+    --propagate          Perform cluster propagation.
+    --cluster_id         Which cluster to propagate.
 
 Arguments:
     csv Sample meta table with at least column: full_name, batch, full_path, ...
@@ -149,6 +151,7 @@ saveRDS(sce_down, rds_down)
 #  theme(plot.title = element_text(hjust = 0.5))
 
 ## Cluster propagation
+if(propagate){
 message("\nCluster propagation ...")
 system.time(sce <- ClusterPropagation(
   sce,           
@@ -156,6 +159,7 @@ system.time(sce <- ClusterPropagation(
   by_exprs_values="exprs", 
   maxN=100,
   seed=12345,
-  cluster_id = 'cluster_id_res_1'
+  cluster_id = opts$cluster_id
 ))
 saveRDS(colData(sce), rds)
+}
