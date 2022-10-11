@@ -162,5 +162,5 @@ system.time(sce <- ClusterPropagation(
   cluster_id = opts$cluster_id
 ))
 }
-saveRDS(colData(sce), rds)
+saveRDS(sce, rds)
 
