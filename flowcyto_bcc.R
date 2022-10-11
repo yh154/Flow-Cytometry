@@ -41,10 +41,10 @@ trans=opts$transfer
 cofactor=as.integer(opts$cofactor)
 
 if(trans){
-    rds <- paste0(output, "/sce_cluster_propagation_", events, "_CF",cofactor,".rds")
+    rds <- paste0(output, "/sce_cluster_", events, "_CF",cofactor,".rds")
     rds_down <- paste0(output, "/sce_down_",events,"_CF",cofactor,".rds")
  }else{
-    rds <- paste0(output, "/sce_cluster_propagation_", events, ".rds")
+    rds <- paste0(output, "/sce_cluster_", events, ".rds")
     rds_down <- paste0(output, "/sce_down_",events,".rds")
 }
 if (file.exists(rds) | file.exists(rds_down)) {
@@ -161,5 +161,6 @@ system.time(sce <- ClusterPropagation(
   seed=12345,
   cluster_id = opts$cluster_id
 ))
-saveRDS(colData(sce), rds)
 }
+saveRDS(colData(sce), rds)
+
