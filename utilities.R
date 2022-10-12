@@ -278,3 +278,24 @@ PlotClusterHeatmap = function (sce, features = rownames(sce), clusters = sce$clu
     draw(hm_list)
     invisible(hm_list)
 }
+
+plotDensity = function(sce, exp="exprs",color="batch"){
+  t(assay(sce, exp)) %>%
+    as_tibble(rownames = "cell_id") %>%
+    pivot_longer(!cell_id, names_to = "marker") %>%
+    group_by(marker) %>%
+    mutate(zscore = scale(value)) %>%
+    ungroup() %>%
+    # dplyr::filter(value > min_cutoff, value < max_cutoff) %>%
+    dplyr::filter(zscore > -3, zscore < 3) %>%
+    left_join(as_tibble(colData(sce), rownames = "cell_id"), by = "cell_id") %>%
+    ggplot(aes_string(x = "value", color = color)) +
+    geom_density() +
+    facet_wrap(vars(marker), scales = "free") +
+    theme_minimal() +
+    theme(
+      plot.background = element_rect(fill = "white"),
+      panel.grid.minor = element_blank()
+    )
+}
+
