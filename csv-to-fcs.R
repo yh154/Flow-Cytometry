@@ -14,7 +14,7 @@ markers=read.table("markers_order.txt",sep="\t",header=F)$V1
 
 DataList=list() 
 for (File in FileNames) { 
-  tempdata <- data.table::fread(paste0(csv_dir,File), check.names = FALSE, skip = 341)
+  tempdata <- data.table::fread(paste0(csv_dir,File), check.names = FALSE, skip = 341)[,8:41] ### check which columns to keep
   cns = sapply(colnames(tempdata),function(x){
     x=gsub("\\s+","",x)
     as.character(unlist(strsplit(x,"::")))[2]
