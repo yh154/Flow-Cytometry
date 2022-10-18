@@ -13,7 +13,7 @@ markers=read.table("markers_order.txt",sep="\t",header=F)$V1
 
 DataList=list() 
 for (File in FileNames) { 
-  tempdata <- data.table::fread(paste0(PrimaryDirectory,File), check.names = FALSE, skip = 341)
+  tempdata <- data.table::fread(paste0(csv_dir,File), check.names = FALSE, skip = 341)
   cns = sapply(colnames(tempdata),function(x){
     as.character(unlist(strsplit(x,"::")))[2]
   }) 
