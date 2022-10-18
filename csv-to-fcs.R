@@ -2,6 +2,7 @@
 require('flowCore')
 require('Biobase')
 require('data.table')
+require('tibble')
 csv_dir="/path/to/csv/"
 FileNames <- list.files(path=csv_dir, pattern = ".csv")     
 as.matrix(FileNames) 
@@ -15,9 +16,10 @@ DataList=list()
 for (File in FileNames) { 
   tempdata <- data.table::fread(paste0(csv_dir,File), check.names = FALSE, skip = 341)
   cns = sapply(colnames(tempdata),function(x){
+    x=gsub("\\s+","",x)
     as.character(unlist(strsplit(x,"::")))[2]
-  }) 
-  cns = gsub("\\s+","",cns)
+  })
+  
   colnames(tempdata)=cns 
   if(!all(sort(cns)==sort(markers))){
      cat(File)
