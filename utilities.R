@@ -168,7 +168,7 @@ ClusterPropagation <- function(
 
 PlotClusterHeatmap = function (sce, features = rownames(sce), clusters = sce$cluster_id, 
     by_exprs_values = "exprs", fun = "median", scale = T, cluster_rows = T, 
-    cluster_anno = F, draw_dend = T, draw_freqs = T, split_by = NULL, hm2 = NULL,title='') 
+    cluster_anno = F, draw_dend = T, draw_freqs = T, split_by = NULL, hm2 = NULL,title=' ', main=' ') 
 {   require("ComplexHeatmap")
     u <- c("abundances", features)
     if (!is.null(hm2)) 
@@ -275,7 +275,7 @@ PlotClusterHeatmap = function (sce, features = rownames(sce), clusters = sce$clu
     })
     hm_list <- NULL
     for (i in seq_along(hms)) hm_list <- hm_list + hms[[i]]
-    draw(hm_list)
+    draw(hm_list, column_title = main)
     invisible(hm_list)
 }
 
