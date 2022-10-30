@@ -151,7 +151,7 @@ saveRDS(sce_down, rds_down)
 #  theme(plot.title = element_text(hjust = 0.5))
 
 ## Cluster propagation
-if(propagate){
+if(opts$propagate){
 message("\nCluster propagation ...")
 system.time(sce <- ClusterPropagation(
   sce,           
