@@ -3,6 +3,7 @@ require('flowCore')
 require('Biobase')
 require('data.table')
 require('tibble')
+require('dplyr')
 csv_dir="/path/to/csv/"
 FileNames <- list.files(path=csv_dir, pattern = ".csv")     
 as.matrix(FileNames) 
@@ -10,18 +11,19 @@ as.matrix(FileNames)
 out_dir="/output/dir/"
 
 # markers of interests. 
-markers=read.table("markers_order.txt",sep="\t",header=F)$V1
+markers=read.table("markers_order.txt",sep="\t",header=F)$V1 %>% toupper()
 
 DataList=list() 
 for (File in FileNames) { 
-  tempdata <- data.table::fread(paste0(csv_dir,File), check.names = FALSE, skip = 341)[,8:41] ### check which columns to keep
+  tempdata <- data.table::fread(File, check.names = FALSE, skip = 391) ### check which rows to skip
   cns = sapply(colnames(tempdata),function(x){
     x=gsub("\\s+","",x)
     as.character(unlist(strsplit(x,"::")))[2]
-  })
+  }) %>% toupper()
   
   colnames(tempdata)=cns 
-  if(!all(sort(cns)==sort(markers))){
+  tempdata=tempdata[, ..markers]
+  if(!all(sort(colnames(tempdata))==sort(markers))){
      cat(File)
      stop("markers different!")
   }
