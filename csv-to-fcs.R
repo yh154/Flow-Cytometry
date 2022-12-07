@@ -36,6 +36,7 @@ rm(tempdata)
 AllSampleNames <- names(DataList)
 
 for(i in c(1:length(AllSampleNames))){
+  if(nrow(DataList[[i]])>0){ 
   data_subset <- DataList[i]
   data_subset <- data.table::rbindlist(as.list(data_subset))
   dim(data_subset)
@@ -50,6 +51,7 @@ for(i in c(1:length(AllSampleNames))){
   data_subset.ff <- new("flowFrame",exprs=as.matrix(data_subset), parameters=AnnotatedDataFrame(metadata)) # in order to create a flow frame, data needs to be read as matrix by exprs
   #head(data_subset.ff)
   write.FCS(data_subset.ff, paste0(out_dir,AllSampleNames[i],".fcs"))
+ }
 }
 
 
