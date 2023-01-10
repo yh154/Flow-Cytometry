@@ -106,7 +106,7 @@ DownSampleSCE = function(sce,
 DownSampleTotal = function (sce, total_events = 1e+05, seed = 800, batch="batch"){
   set.seed(seed)
   batches=table(sce[[batch]])
-  slice_batch=events/length(batches)
+  slice_batch=total_events/length(batches)
   sce$event_id=1:ncol(sce)
   coldata=colData(sce) 
   coldata = split(coldata,coldata[[batch]])
