@@ -319,4 +319,3 @@ plotDensity = function(sce, exp="exprs",color="batch"){
       panel.grid.minor = element_blank()
     )
 }
-
