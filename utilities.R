@@ -89,6 +89,7 @@ Clustering=function (sce, features = rownames(sce), by_exprs_values = "normexprs
     return(sce)
 }
 
+# min(N. MaxN) from each group_by will be select
 DownSampleSCE = function(sce,
 			 maxN,
 			 group_by,
@@ -98,6 +99,26 @@ DownSampleSCE = function(sce,
   dt <- colData(sce) %>% as.data.frame() %>% data.table::as.data.table()
   dt <- dt[, .SD[sample(.N, min(maxN,.N))], by = group_by]
   sce <- sce[, sce$event_id %in% dt$event_id]
+  return(sce)
+}
+
+# Upto events will be selected from all batches
+DownSampleTotal = function (sce, total_events = 1e+05, seed = 800, batch="batch"){
+  set.seed(seed)
+  batches=table(sce[[batch]])
+  slice_batch=events/length(batches)
+  sce$event_id=1:ncol(sce)
+  coldata=colData(sce) 
+  coldata = split(coldata,coldata[[batch]])
+  keep=list()
+  for(i in seq_along(batches)){
+    dt=coldata[[i]] %>% as.data.frame() %>% data.table::as.data.table() 
+    fc=as.character(dt$sample_id) %>% unique() %>%length()
+    slice_samp = floor(slice_batch/fc)
+    keep[[i]]=dt[,sample(event_id,min(.N,slice_samp)), by=sample_id] %>%
+      pull(V1)
+  }
+  sce <- sce[,sce$event_id%in%Reduce(c,keep)]
   return(sce)
 }
 
