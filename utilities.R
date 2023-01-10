@@ -92,7 +92,7 @@ Clustering=function (sce, features = rownames(sce), by_exprs_values = "normexprs
 DownSampleSCE = function(sce,
 			 maxN,
 			 group_by,
-			 seed){
+			 seed=800){
   set.seed(seed)
   sce$event_id=1:ncol(sce)
   dt <- colData(sce) %>% as.data.frame() %>% data.table::as.data.table()
