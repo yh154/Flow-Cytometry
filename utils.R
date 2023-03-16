@@ -49,18 +49,18 @@ fun_ExIPlot=function (object, features, type = "violin", idents = NULL, ncol = N
             split <- factor(x = split)
         }
         if (is.null(x = cols)) {
-            cols <- hue_pal()(length(x = levels(x = idents)))
-            cols <- Interleave(cols, InvertHex(hexadecimal = cols))
+            cols <- scales::hue_pal()(length(x = levels(x = idents)))
+            cols <- Seurat:::Interleave(cols, Seurat:::InvertHex(hexadecimal = cols))
         }
         else if (length(x = cols) == 1 && cols == "interaction") {
             split <- interaction(idents, split)
-            cols <- hue_pal()(length(x = levels(x = idents)))
+            cols <- scale::hue_pal()(length(x = levels(x = idents)))
         }
         else {
             cols <- Col2Hex(cols)
         }
         if (length(x = cols) < length(x = levels(x = split))) {
-            cols <- Interleave(cols, InvertHex(hexadecimal = cols))
+            cols <- Seurat:::Interleave(cols, Seurat:::InvertHex(hexadecimal = cols))
         }
         cols <- rep_len(x = cols, length.out = length(x = levels(x = split)))
         names(x = cols) <- levels(x = split)
@@ -84,6 +84,7 @@ fun_ExIPlot=function (object, features, type = "violin", idents = NULL, ncol = N
             adjust = adjust, cols = cols, pt.size = pt.size, 
             log = log, raster = raster))
     })
+    
     label.fxn <- switch(EXPR = type, violin = if (stack) {
         xlab
     } else {
@@ -120,6 +121,7 @@ fun_ExIPlot=function (object, features, type = "violin", idents = NULL, ncol = N
             plots <- plots & NoLegend()
         }
     }
+    #print(cols)
     if(return_data){
     return(data)
     }else{return(plots)}
