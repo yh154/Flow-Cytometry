@@ -14,12 +14,13 @@ BatchCorrection = function (sce, events = 1e+05, seed = 12345,batch="batch"){
        pull(V1)
   }
   sce <- sce[,sce$event_id%in%Reduce(c,keep)]
-  res <- t(assay(sce, "exprs")) %>% scale() %>% 
-    prcomp(retx = TRUE)
-  data_mat = res$x
-  colnames(data_mat)=rownames(sce)
-  assay(sce, "normexprs") <- t(harmony::HarmonyMatrix(data_mat,         	      	
-      meta_data=as.data.frame(colData(sce)),vars_use=batch, do_pca=F))
+  if(length(batches)>1){
+  	res <- t(assay(sce, "exprs")) %>% scale() %>% prcomp(retx = TRUE)
+  	data_mat = res$x
+  	colnames(data_mat)=rownames(sce)
+  	assay(sce, "normexprs") <- t(harmony::HarmonyMatrix(data_mat,         	      	
+      	meta_data=as.data.frame(colData(sce)),vars_use=batch, do_pca=F))
+      }
   return(sce)
 }
 
