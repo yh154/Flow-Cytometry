@@ -15,6 +15,7 @@ markers=read.table("markers_order.txt",sep="\t",header=F)$V1 %>% toupper()
 
 DataList=list() 
 for (File in FileNames) { 
+  message(File)
   tempdata <- data.table::fread(File, check.names = FALSE, skip = 391) ### check which rows to skip
   cns = sapply(colnames(tempdata),function(x){
     x=gsub("\\s+","",x)
