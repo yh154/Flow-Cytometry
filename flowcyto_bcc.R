@@ -13,6 +13,7 @@ Options:
     --save_graph         Save SNN graph.
     --transfer           Perform arcsinh transfermation.
     --cofactor=<cf>      Transfermation cofactor [default: 5]
+    --clustering.        Perform clustering.
     --propagate          Perform cluster propagation.
     --cluster_id         Which cluster to propagate.
 
@@ -130,6 +131,7 @@ cowplot::plot_grid(plotlist = list(p1,p2), ncol = 2)
 dev.off()
 
 ##clustering
+if(opts$clustering){
 message("\nClustering ...")
 sce_down<- Clustering(
     sce_down,
@@ -139,7 +141,7 @@ sce_down<- Clustering(
     save_graph=opts$save_graph,
     resolution=c(1,1.6)
 )
-
+}
 
 saveRDS(sce_down, rds_down)
 
