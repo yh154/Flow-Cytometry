@@ -10,8 +10,11 @@ BatchCorrection = function (sce, events = 1e+05, seed = 12345,batch="batch"){
      dt=coldata[[i]] %>% as.data.frame() %>% data.table::as.data.table() 
      fc=as.character(dt$sample_id) %>% unique() %>%length()
      slice_samp = floor(slice_batch/fc)
+     if(ncol(sce)>events){
      keep[[i]]=dt[,sample(event_id,min(.N,slice_samp)), by=sample_id] %>%
-       pull(V1)
+       pull(V1)}else{
+     keep[[i]]=dt$event_id
+     }
   }
   sce <- sce[,sce$event_id%in%Reduce(c,keep)]
   if(length(batches)>1){
