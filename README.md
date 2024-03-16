@@ -8,7 +8,7 @@ Packages involved:
 suppressPackageStartupMessages({
 require(flowCore)
 require(CATALYST)
-require(harmony)
+require(sva)
 require(data.table)
 require(caret)
 require(randomForest)
