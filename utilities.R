@@ -1,32 +1,10 @@
-BatchCorrection = function (sce, events = 1e+05, seed = 12345,batch="batch"){
-  set.seed(seed)
-  batches=table(sce[[batch]])
-  slice_batch=events/length(batches)
-  sce$event_id=1:ncol(sce)
-  coldata=colData(sce) 
-  coldata = split(coldata,coldata[[batch]])
-  keep=list()
-  for(i in seq_along(batches)){
-     dt=coldata[[i]] %>% as.data.frame() %>% data.table::as.data.table() 
-     fc=as.character(dt$sample_id) %>% unique() %>%length()
-     slice_samp = floor(slice_batch/fc)
-     if(ncol(sce)>events){
-     keep[[i]]=dt[,sample(event_id,min(.N,slice_samp)), by=sample_id] %>%
-       pull(V1)}else{
-     keep[[i]]=dt$event_id
-     }
-  }
-  sce <- sce[,sce$event_id%in%Reduce(c,keep)]
-  if(length(batches)>1){
-  	res <- t(assay(sce, "exprs")) %>% scale() %>% prcomp(retx = TRUE)
-  	data_mat = res$x
-  	colnames(data_mat)=rownames(sce)
-  	assay(sce, "normexprs") <- t(harmony::HarmonyMatrix(data_mat,         	      	
-      	meta_data=as.data.frame(colData(sce)),vars_use=batch, do_pca=F))
-      }
+
+BatchCorrection=function(sce, slot="counts",batch='batch'){
+  X <- assay(sce, slot)
+  cdata=sva::ComBat(X,batch=sce[[batch]])
+  assay(sce, "exprs", withDimnames=F) <- cdata
   return(sce)
 }
-
 
 RunUMAP = function (sce, 
                        by_exprs_values = "exprs", 
@@ -40,13 +18,15 @@ RunUMAP = function (sce,
   set.seed(seed)
   names <- paste0(name, 1:n_components)
   SingleCellExperiment::reducedDim(sce, type = name, withDimnames = T) <- 
-    uwot::umap(t(assay(sce, by_exprs_values)), n_components = n_components, n_neighbors = n_neighbors,min_dist = min_dist, scale = scale, n_threads = n_threads,metric = metric,verbose = T) %>% magrittr::set_colnames(names)
+    uwot::umap(t(assay(sce, by_exprs_values)), n_components = n_components, n_neighbors = n_neighbors,min_dist = min_dist, scale = scale, n_threads = n_threads,metric = metric,verbose = T) %>% 
+    magrittr::set_colnames(names)
   return(sce)
 }
 
-Clustering=function (sce, features = rownames(sce), by_exprs_values = "normexprs", 
+Clustering=function (sce, features = rownames(sce), by_exprs_values = "exprs", 
     method = "SNNGraph", xdim = 20, ydim = 20, maxK = 40, save_graph=FALSE, output="",
-    n_components = min(c(2,length(features))), n_neighbors = 10, min_dist = 0.1, resolution=1, seed = 12345) 
+    n_components = min(c(2,length(features))), n_neighbors = 10, 
+    min_dist = 0.3, resolution=1, seed = 12345) 
 {
     set.seed(seed)
     if (identical(method, "FlowSOM")) {
@@ -81,13 +61,12 @@ Clustering=function (sce, features = rownames(sce), by_exprs_values = "normexprs
     }
     if (identical(method, "SNNGraph")) {
 	      cat("SNN graph construction...\n")
-        SingleCellExperiment::reducedDim(sce, type = "UMAP_SNN",withDimnames = T) <- t(assay(sce,"normexprs"))
-        g <- scran::buildSNNGraph(sce, k=n_neighbors, use.dimred = "UMAP_SNN")
+        g <- scran::buildSNNGraph(sce, k=n_neighbors, use.dimred = "UMAP")
         if(save_graph){saveRDS(g,sprintf("%sSNNgraph.rds",output))}
         cat("Graph-based clustering...\n")
         for(i in seq_along(resolution)){
           g_comm <- igraph::cluster_louvain(g,resolution = resolution[i])
-          sce[[paste0("cluster_id_res_",resolution[i])]]<- factor(g_comm$membership)
+          sce[[paste0("cluster_res_",resolution[i])]]<- factor(g_comm$membership)
         }
     }
     return(sce)
