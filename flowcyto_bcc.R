@@ -6,19 +6,22 @@ Usage:
     flowcyto_bcc.R [options] (<csv>) [<output>]
 Options:
     -h --help            Show this screen.
-    --events=<bp>        Total events selected for batch correction. 
-                         events/no-of-batch number of events are selected from each batch [default: 1e5].
+    --events=<bp>        Total events selected for anlaysis. 
+                         (events/no-of-batch) of events are selected 
+                         from each batch [default: 1e6].
+    --batch=<bc>         Column name corresponds to "batch" [default: batch]. 
     -t --thread=<t>      Threads [default: 1].
-    --group=<gp>         Group(s) of interest to consider [default: batch]. Comma delimited. 
+    --group=<gp>         Column(s) to consider [default: batch,file_name]. Comma delimited. 
     --save_graph         Save SNN graph.
     --transfer           Perform arcsinh transfermation.
     --cofactor=<cf>      Transfermation cofactor [default: 5]
-    --clustering.        Perform clustering.
+    --clustering         Perform clustering.
+    --cluster_res=<res>  Clustering resolution [default: 1]. Comma delimited.    
     --propagate          Perform cluster propagation.
-    --cluster_id         Which cluster to propagate.
+    --cluster_id         Which cluster id to propagate.
 
 Arguments:
-    csv Sample meta table with at least column: full_name, batch, full_path, ...
+    csv Sample meta table with at least columns: full_name, batch, full_path, ...
     output Output directory. Default current working directory.
 
 ' -> doc
@@ -33,6 +36,7 @@ if (!file.exists(opts$csv)) {
 
 csv=opts$csv
 events= as.integer(opts$events)
+batch=opts$batch
 output=opts$output
 gp=as.character(unlist(strsplit(gsub("\\s+","",opts$group),",")))
 if(is.null(output)){output=getwd()}
@@ -40,12 +44,13 @@ message(sprintf("Output file location:\n  %s\n",output))
 thread=as.integer(opts$thread)
 trans=opts$transfer
 cofactor=as.integer(opts$cofactor)
+res=as.numeric(as.character(unlist(strsplit(gsub("\\s+","",opts$cluster_res),","))))
 
 if(trans){
-    rds <- paste0(output, "/sce_cluster_", events, "_CF",cofactor,".rds")
+    rds <- paste0(output, "/sce","_CF",cofactor,".rds")
     rds_down <- paste0(output, "/sce_down_",events,"_CF",cofactor,".rds")
  }else{
-    rds <- paste0(output, "/sce_cluster_", events, ".rds")
+    rds <- paste0(output, "/sce",".rds")
     rds_down <- paste0(output, "/sce_down_",events,".rds")
 }
 if (file.exists(rds) | file.exists(rds_down)) {
@@ -57,7 +62,7 @@ require(cowplot)
 require(dplyr)
 require(flowCore)
 require(CATALYST)
-require(harmony)
+require(sva)
 require(ggplot2)
 require(data.table)
 require(caret)
@@ -86,21 +91,26 @@ sce=CATALYST::prepData(
         antigen = "antigen")
 )
 
-## logicle-transform
-#ex <- fsApply(fsApply(fs, function(ff){
-#    lgcl <- estimateLogicle(ff, channels = colnames(ff))
-#    flowCore::transform(ff, lgcl)
-#}),exprs)
+# logicle-transform
+if(trans){
+  message("\nPerform logicle-transform ...")
+  ex <- fsApply(fsApply(fs, function(ff){
+   lgcl <- estimateLogicle(ff, channels = colnames(ff))
+   flowCore::transform(ff, lgcl)
+  }),exprs)
+  assay(sce, "counts", withDimnames=F) <- t(ex)
+}
 
-if(!trans) assay(sce, "exprs", FALSE) <- assay(sce,"counts")
-
-sce_down=BatchCorrection(sce, events=events)
+message(("\nDownSampling..."))
+sce_down=DownSampleTotal(sce, total_events = events, seed=1234,batch = batch)
+message("\nBatch correction...")
+sce_down=BatchCorrection(sce_down,batch = batch)
 
 ##UMAP
 message("\nRun UMAP ...")
 sce_down <-RunUMAP(
   sce_down,
-  by_exprs_values="normexprs",
+  by_exprs_values="counts",
   name="UMAPnorm",
   n_neighbors=25,
   min_dist=0.4,
@@ -116,12 +126,12 @@ sce_down <-RunUMAP(
   n_threads=thread)
 
 message("\nPlotting ...")
-p1=scater::plotReducedDim(sce_down, dimred = "UMAP", colour_by = "batch",
-                  point_size = 0.1, point_alpha = 0.2)+
+p1=scater::plotReducedDim(sce_down, dimred = "UMAPnorm", colour_by = "batch",
+                  point_size = 0.1, point_alpha = 1)+
   ggtitle("Before Batch Correction")+
   theme(plot.title = element_text(hjust = 0.5))
-p2=scater::plotReducedDim(sce_down, dimred = "UMAPnorm", colour_by = "batch",
-                  point_size = 0.1, point_alpha = 0.2) +
+p2=scater::plotReducedDim(sce_down, dimred = "UMAP", colour_by = "batch",
+                  point_size = 0.1, point_alpha = 1) +
   ggtitle("After Batch Correction")+
   theme(plot.title = element_text(hjust = 0.5))
 
@@ -139,18 +149,11 @@ sce_down<- Clustering(
     n_components=2,
     n_neighbors=30,
     save_graph=opts$save_graph,
-    resolution=c(1,1.6)
+    resolution=res
 )
 }
 
 saveRDS(sce_down, rds_down)
-
-#scater::plotReducedDim(sce_down, dimred = "UMAPnorm", 
-#                       colour_by = "cluster_id_res_1",
-#                       text_by = "cluster_id_res_1",
-#                       point_size = 0.1, point_alpha = 0.5) +
-#  ggtitle("After Batch Correction")+
-#  theme(plot.title = element_text(hjust = 0.5))
 
 ## Cluster propagation
 if(opts$propagate){
@@ -166,3 +169,4 @@ system.time(sce <- ClusterPropagation(
 }
 saveRDS(sce, rds)
 
+message("\nFinished Successfully!")
